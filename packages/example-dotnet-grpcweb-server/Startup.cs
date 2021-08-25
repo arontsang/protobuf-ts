@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using ArtsTech.Grpc.WebSocket;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +34,9 @@ namespace asp_net_core_server
                 p.WithExposedHeaders("server-header", "server-header-bin"); // required for our custom response headers over CORS
             });
 
+            app.UseWebSockets();
+            app.UseGrpcWebSocket();
+            
             app.UseRouting();
 
             // Add gRPC-Web middleware after routing and before endpoints

@@ -152,13 +152,19 @@ namespace asp_net_core_server
             };
         }
 
-        public override Task Bidi(IAsyncStreamReader<ExampleRequest> requestStream,
+        public override async Task Bidi(IAsyncStreamReader<ExampleRequest> requestStream,
             IServerStreamWriter<ExampleResponse> responseStream, ServerCallContext context)
         {
-            // context.
-
-
-            return base.Bidi(requestStream, responseStream, context);
+            await foreach (var request in requestStream.ReadAllAsync().WithCancellation(context.CancellationToken))
+            {
+                await responseStream.WriteAsync(new ExampleResponse
+                {
+                    Answer = $"You asked: {request.Question}",
+                    YourDeadline = context.Deadline.ToString(CultureInfo.InvariantCulture),
+                    YourRequestHeaders = { MetadataToMap(context.RequestHeaders) },
+                    YourFailRequest = request.PleaseFail,
+                });
+            }
         }
 
         private static MapField<string, string> MetadataToMap(Metadata metadata)
